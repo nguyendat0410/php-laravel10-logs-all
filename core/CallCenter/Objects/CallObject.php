@@ -26,6 +26,14 @@ class CallObject
 
     private string $type;
 
+    private string $recording_file;
+
+    private mixed $json_attributes;
+
+    private $created_at;
+
+    private $updated_at;
+
     /**
      * @throws Exception
      */
@@ -107,4 +115,37 @@ class CallObject
     {
         return $this->uuid;
     }
+
+    /**
+     * @return string
+     */
+    public function getRecordingFile(): string
+    {
+        return $this->recording_file;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getJsonAttributes(): mixed
+    {
+        return $this->json_attributes;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatedAt()
+    {
+        return $this->created_at;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updated_at;
+    }
+
 }

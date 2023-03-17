@@ -12,7 +12,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+//        $schedule->command('inspire')->everyMinute();
+        $schedule->command('app:call-center-cron')->withoutOverlapping()->everyMinute();
+
+        /**
+         * add to crontab
+         * crontab * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+         */
     }
 
     /**

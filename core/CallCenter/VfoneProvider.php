@@ -5,6 +5,7 @@ use Core\BaseRequest;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Log;
 
 class VfoneProvider extends BaseRequest
 {
@@ -18,6 +19,34 @@ class VfoneProvider extends BaseRequest
     }
 
     public function getLogs(array $params = [])
+    {
+        $limit = 1000;
+        $logs = $this->callAPI($params);
+        $responseData = !empty($logs['list_history']) ? $logs['list_history'] : [];
+        if ($logs) {
+            $totalRecord = $logs['total_record'];
+
+            if ($totalRecord > 0) {
+                $totalPage = ($totalRecord % $limit) == 0 ? ($totalRecord / $limit) : intval($totalRecord / $limit) + 1 ;
+
+                if ($totalPage > 1) {
+                    for ($i = 2; $i <= $totalPage; $i++) {
+                        $params['page'] = $i;
+
+                        $newLogs = $this->callAPI($params);
+
+                        if (isset($newLogs['list_history']) && !empty($newLogs['list_history'])) {
+                            $responseData = array_merge($responseData, $newLogs['list_history']);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $responseData;
+    }
+
+    private function callAPI(array $params)
     {
         $responseData = [];
         try {
@@ -34,16 +63,17 @@ class VfoneProvider extends BaseRequest
 
             $body = json_decode($body->getContents(), JSON_OBJECT_AS_ARRAY);
 
-            if (!empty($body) && !empty($body['data']) && !empty($body['data'][0]) && !empty($body['data'][0]['list_history'])) {
-                $responseData = $body['data'][0]['list_history'];
+            if (!empty($body) && !empty($body['data']) && !empty($body['data'][0])) {
+                Log::info("Total log = ". $body['data'][0]['total_record']);
+                Log::info("Log page = {$params['page']} = ". count($body['data'][0]['list_history']));
+                $responseData = $body['data'][0];
             }
         } catch (RequestException $e) {
             $body = json_decode($e->getResponse()->getBody()->getContents());
-            dd($body);
+            Log::error($body);
         } catch (GuzzleException $e) {
-            dd($e->getMessage());
+            Log::error($e->getMessage());
         }
-
         return $responseData;
     }
 }

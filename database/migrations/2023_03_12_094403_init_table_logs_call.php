@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('status')-> comment('Trạng thái cuộc gọi');
             $table->string('type')->comment('Cuộc gọi vào (in), Cuộc gọi ra (out)');
             $table->string('recording_file')->comment('Đường dẫn file ghi âm');
-            $table->text('json_attributes')->comment('Trường JSON');
+            $table->text('json_attributes')->nullable()->comment('Trường JSON');
             $table->timestamps();
 
             $table->index('time');
